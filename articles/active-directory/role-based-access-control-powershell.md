@@ -47,7 +47,7 @@ To get detailed help for any cmdlet that you see in this tutorial, use the `Get-
 
 For example, to get help for the `Add-AzureAccount` cmdlet, type:
 
-	Get-Help Add-AzureAccount -Detailed
+	Get-Help Login-AzureRmAccount -Detailed
 
 Please also read the following tutorials to get familiar with setting up and using Azure Resource Manager in Windows PowerShell:
 
@@ -57,37 +57,33 @@ Please also read the following tutorials to get familiar with setting up and usi
 
 ## Connect to your subscriptions
 
-Since RBAC only works with Azure Resource Manager, the first thing to do is to switch to Azure Resource Manager mode:
+Since RBAC only works with Azure Resource Manager, you will connect to your Azure subscription using:
 
-    PS C:\> Switch-AzureMode -Name AzureResourceManager
-
-To connect to your Azure subscriptions, type:
-
-    PS C:\> Add-AzureAccount
+    PS C:\> Login-AzureRmAccount
 
 In the pop-up browser control, enter your Azure account user name and password. PowerShell will get all the subscriptions you have with this account and figure PowerShell to use the first one as default. Notice that with RBAC, you will only be able to get the subscriptions where you have some permissions by either being its co-admin or having some role assignment.
+
+### Selecting a specific subscription
 
 If you have multiple subscriptions and want to switch to another one, use the following commands:
 
     # This will show you the subscriptions under the account.
-    PS C:\> Get-AzureSubscription
+    PS C:\> Get-AzureRmSubscription
     # Use the subscription name to select the one you want to work on.
-    PS C:\> Select-AzureSubscription -SubscriptionName <subscription name>
+    PS C:\> Select-AzureRmSubscription -SubscriptionName <subscription name>
 
 ## Check existing role assignments
 
-Now let's check what role assignments exist in the subscription already. Type:
+    PS C:\> Get-AzureRmRoleAssignment
 
-    PS C:\> Get-AzureRoleAssignment
+This will return all role assignments in the subscription. Note:
 
-This will return all the role assignments in the subscription. Two things to notice:
-
-1. You need to have read access at the subscription level.
-2. If the subscription has a lot of role assignment, it may take a while to get all of them.
+1. Your credential must have read access at the subscription level
+2. If the subscription has a lot of role assignment, it may take a while to fetch the results
 
 You can also check existing role assignments for a particular role definition, at a particular scope, to a particular user. Type:
 
-    PS C:\> Get-AzureRoleAssignment -ResourceGroupName group1 -Mail <user email> -RoleDefinitionName Owner
+    PS C:\> Get-AzureRmRoleAssignment -ResourceGroupName group1 -Mail <user email> -RoleDefinitionName Owner
 
 This will return all the role assignments for a particular user in your AD tenant, who has a role assignment of "Owner" for resource group "group1". The role assignment can come from two places:
 
@@ -131,15 +127,15 @@ Then use `New-AzureRoleAssignment` to create a role assignment. For example:
 
 	#Create a role assignment at a resource level.
 	PS C:\> $resources = Get-AzureResource
-    PS C:\> New-AzureRoleAssignment -Mail <user email> -RoleDefinitionName Owner -Scope $resources[0].ResourceId
+    PS C:\> New-AzureRmRoleAssignment -Mail <user email> -RoleDefinitionName Owner -Scope $resources[0].ResourceId
 
 
 ## Verify permissions
 
 After you check that your account has some role assignments, you can actually see the permissions these role assignments grant you by running:
 
-    PS C:\> Get-AzureResourceGroup
-    PS C:\> Get-AzureResource
+    PS C:\> Get-AzureRmResourceGroup
+    PS C:\> Get-AzureRmResource
 
 These two cmdlets will only return the resource groups or resources where you have read permission. And it will show you the permissions you have as well.
 
